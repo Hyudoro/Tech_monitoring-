@@ -4,7 +4,7 @@ Machine Learning is Fun;https://medium.com/@ageitgey
 Machine Learning Mastery;https://machinelearningmastery.com/blog/
 KDnuggets;https://www.kdnuggets.com/
 Towards Data Science;https://towardsdatascience.com/
-MarkTechPost;https://www.marktechpost.com/
+MarkTechPost;https://www.marktechpost.com/category/technology/ai-shorts/
 DeepMind Blog;https://www.deepmind.com/blog
 Analytics Vidhya;https://www.analyticsvidhya.com/blog/
 MIT News Artificial Intelligence;https://news.mit.edu/topic/artificial-intelligence
@@ -17,7 +17,7 @@ DataRobot Blog;https://www.datarobot.com/blog/
 AI Alignment Forum;https://www.alignmentforum.org/
 EleutherAI Blog;https://www.eleuther.ai/news/
 Google AI Blog;https://ai.googleblog.com/
-Facebook AI Blog;https://ai.facebook.com/blog/
+Facebook AI Blog;https://ai.meta.com/blog/
 Phoronix;https://www.phoronix.com/
 OMG! Ubuntu!;https://www.omgubuntu.co.uk/
 Linux Today;https://www.linuxtoday.com/
@@ -38,19 +38,20 @@ Redit Programming;https://www.reddit.com/r/programming/
 Redit Linux;https://www.reddit.com/r/linux/
 Gergely Orosz;https://blog.pragmaticengineer.com/
 Cassidy Williams;https://cassidoo.co/
+Itpro;https://www.itpro.fr
+infofr;https://www.informatiquenews.fr/news
 KentCDodds;https://kentcdodds.com/
 Addy Osmani;https://addyosmani.com/
-Wes Bos;https://wesbos.com/
+Wes Bos;https://wesbos.com/ 
 Sarah Drasner;https://sarah.dev/
+Twitter; https://x.com/search?q=%23coding%20%23tech%20%23AI&src=typed_query&f=live
 The Primeagen;https://www.twitch.tv/theprimeagen
 Monica Lent;https://monicalent.com/
 Jeff Delaney;https://fireship.io/
 Hitesh Choudhary;https://www.hiteshchoudhary.com/
-Laura Medalia;https://www.lauramedalia.com/
 Estefannie;https://estefannie.com/
 Brad Traversy;https://www.traversymedia.com/
 Mosh Hamedani;https://codewithmosh.com/
-Ania Kubów;https://www.aniakubow.com/
 Clement Mihailescu;https://www.clementmihailescu.com/
 Ben Awad;https://benawad.com/
 Flavio Copes;https://flaviocopes.com/
