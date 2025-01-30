@@ -1,8 +1,9 @@
-import requests
-from bs4 import BeautifulSoup
 import sqlite3
 import os
 import logging
+import cloudscraper
+from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from random import randint
@@ -18,22 +19,21 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-# Configure requests session with retries
-session = requests.Session()
-retry = Retry(
-    total=3,  # Number of retries
-    backoff_factor=1,  # Delay between retries
-    status_forcelist=[403, 500, 502, 503, 504]  # Retry for these HTTP status codes
-)
-adapter = HTTPAdapter(max_retries=retry)
-session.mount('http://', adapter)
-session.mount('https://', adapter)
+# Create a session using cloudscraper to bypass bot detection
+session = cloudscraper.create_scraper()
 
-# Custom headers to mimic a browser
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-}
+# Retry mechanism
+retry_strategy = Retry(
+    total=5,  # Retries up to 5 times
+    backoff_factor=2,  # Exponential backoff: 2s, 4s, 8s...
+    status_forcelist=[500, 502, 503, 504, 403]  # Retry for these errors
+)
+adapter = HTTPAdapter(max_retries=retry_strategy)
+session.mount("https://", adapter)
+session.mount("http://", adapter)
+
+# Dynamic User-Agent
+ua = UserAgent()
 
 def scrape_data():
     # Define the database path
@@ -45,12 +45,10 @@ def scrape_data():
     cursor.execute('SELECT id, url FROM sources')
     sources = cursor.fetchall()
 
-    # Debug: Log fetched sources
     print(f"Fetched sources: {sources}")
 
     for source_id, url in sources:
         try:
-            # Debug: Log current URL
             print(f"Processing source_id={source_id}, url={url}")
 
             # Check if URL has already been scraped
@@ -59,10 +57,17 @@ def scrape_data():
                 print(f"URL already scraped, skipping: {url}")
                 continue
 
+            # Set a random User-Agent for each request
+            headers = {'User-Agent': ua.random}
+
             # Make the HTTP request
-            response = session.get(url, headers=HEADERS, timeout=15)
+            response = session.get(url, headers=headers, timeout=15)
             response.raise_for_status()  # Raise HTTP errors
-            print(f"Request successful for: {url}")
+
+            # Skip 404 errors
+            if response.status_code == 404:
+                print(f"404 Not Found for URL: {url}, skipping...")
+                continue
 
             # Parse the HTML
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -70,36 +75,25 @@ def scrape_data():
             # Extract the title
             title = soup.title.string.strip() if soup.title else "No Title"
 
-            # Extract meta description (if available)
-            meta_desc = soup.find('meta', attrs={'name': 'description'})
-            description = meta_desc['content'].strip() if meta_desc else "No Description"
+            print(f"Scraped data: title={title}")
 
-            # Debug: Log scraped data
-            print(f"Scraped data: title={title}, description={description}")
-
-            # Insert scraped data into the database
-            print(f"Inserting into database: source_id={source_id}, title='{title}', url='{url}', description='{description}'")
+            # Insert scraped data into the database with default summary and relevance
+            print(f"Inserting into database: source_id={source_id}, title='{title}', url='{url}'")
             cursor.execute('''
                 INSERT INTO articles (source_id, title, link, summary, relevance)
                 VALUES (?, ?, ?, ?, ?)
-            ''', (source_id, title, url, description, "Pending Relevance"))
+            ''', (source_id, title, url, "Pending Summary", "Pending"))
 
             print(f"Data inserted successfully for URL: {url}")
 
-        except requests.exceptions.RequestException as e:
-            error_message = f"HTTP error for {url}: {e}"
-            logging.error(error_message)
-            print(error_message)
-
         except Exception as e:
-            error_message = f"Error scraping {url}: {e}"
+            error_message = f"Error processing {url}: {e}"
             logging.error(error_message)
             print(error_message)
 
-        # Random delay between requests
+        # Random delay to reduce rate-limiting risk
         sleep(randint(2, 5))
 
-    # Commit changes and close the database connection
     conn.commit()
     conn.close()
     print("Scraping completed.")
